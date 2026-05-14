@@ -63,7 +63,7 @@ export default defineComponent({
     const appStore = useAppStore()
     const { t } = useI18n()
     return {
-      default: 'https://static.linhaojun.top/aurora/config/52a81cd2772167b645569342e81ce312.jpg',
+      default: 'http://zxl-blog1.oss-cn-hangzhou.aliyuncs.com/aurora/config/1514df2a0ec2b474d580797088274dca423517587.png@480w_270h_1s.avif',
       avatarClass: computed(() => {
         return {
           'ob-avatar': true,

@@ -304,24 +304,30 @@ export default defineComponent({
             initTocbot()
           })
         })
-        new Promise((resolve) => {
-          data.data.preArticleCard.articleContent = markdownToHtml(data.data.preArticleCard.articleContent)
-            .replace(/<\/?[^>]*>/g, '')
-            .replace(/[|]*\n/, '')
-            .replace(/&npsp;/gi, '')
-          resolve(data.data.preArticleCard)
-        }).then((preArticleCard: any) => {
-          reactiveData.preArticleCard = preArticleCard
-        })
-        new Promise((resolve) => {
-          data.data.nextArticleCard.articleContent = markdownToHtml(data.data.nextArticleCard.articleContent)
-            .replace(/<\/?[^>]*>/g, '')
-            .replace(/[|]*\n/, '')
-            .replace(/&npsp;/gi, '')
-          resolve(data.data.nextArticleCard)
-        }).then((nextArticleCard) => {
-          reactiveData.nextArticleCard = nextArticleCard
-        })
+        // 添加空值检查，防止 preArticleCard 为 null
+        if (data.data.preArticleCard) {
+          new Promise((resolve) => {
+            data.data.preArticleCard.articleContent = markdownToHtml(data.data.preArticleCard.articleContent)
+              .replace(/<\/?[^>]*>/g, '')
+              .replace(/[|]*\n/, '')
+              .replace(/&npsp;/gi, '')
+            resolve(data.data.preArticleCard)
+          }).then((preArticleCard: any) => {
+            reactiveData.preArticleCard = preArticleCard
+          })
+        }
+        // 添加空值检查，防止 nextArticleCard 为 null
+        if (data.data.nextArticleCard) {
+          new Promise((resolve) => {
+            data.data.nextArticleCard.articleContent = markdownToHtml(data.data.nextArticleCard.articleContent)
+              .replace(/<\/?[^>]*>/g, '')
+              .replace(/[|]*\n/, '')
+              .replace(/&npsp;/gi, '')
+            resolve(data.data.nextArticleCard)
+          }).then((nextArticleCard) => {
+            reactiveData.nextArticleCard = nextArticleCard
+          })
+        }
       })
     }
     const fetchComments = () => {
@@ -332,6 +338,14 @@ export default defineComponent({
         size: pageInfo.size
       }
       api.getComments(params).then(({ data }) => {
+        // 添加空值检查，防止 data.data 或 data.data.records 为 null/undefined
+        if (!data.data || !data.data.records) {
+          console.warn('评论数据为空:', data)
+          reactiveData.comments = []
+          reactiveData.haveMore = false
+          return
+        }
+        
         if (reactiveData.isReload) {
           reactiveData.comments = data.data.records
           reactiveData.isReload = false
@@ -348,6 +362,12 @@ export default defineComponent({
     }
     const fetchReplies = (index: any) => {
       api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
+        // 添加空值检查
+        if (!data.data) {
+          console.warn('回复数据为空:', data)
+          reactiveData.comments[index].replyDTOs = []
+          return
+        }
         reactiveData.comments[index].replyDTOs = data.data
       })
     }

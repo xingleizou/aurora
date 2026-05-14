@@ -161,6 +161,14 @@ export default defineComponent({
         size: pageInfo.size
       }
       api.getComments(params).then(({ data }) => {
+        // 添加空值检查，防止 data.data 或 data.data.records 为 null/undefined
+        if (!data.data || !data.data.records) {
+          console.warn('评论数据为空:', data)
+          reactiveData.comments = []
+          reactiveData.haveMore = false
+          return
+        }
+        
         if (reactiveData.isReload) {
           reactiveData.comments = data.data.records
           reactiveData.isReload = false
@@ -177,6 +185,12 @@ export default defineComponent({
     }
     const fetchReplies = (index: any) => {
       api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
+        // 添加空值检查
+        if (!data.data) {
+          console.warn('回复数据为空:', data)
+          reactiveData.comments[index].replyDTOs = []
+          return
+        }
         reactiveData.comments[index].replyDTOs = data.data
       })
     }

@@ -68,33 +68,58 @@ export default {
 
 <style scoped>
 .login-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   right: 0;
   left: 0;
-  background: url(https://static.linhaojun.top/aurora/photos/765664a8a75211296a9cd89671d6d660.png) center center / cover
-    no-repeat;
+  background: url(http://zxl-blog1.oss-cn-hangzhou.aliyuncs.com/aurora/photos/f3c1476108d4714d9dc971be1ba275f6391297476.jpg@270w_360h_1s.avif) center center / contain no-repeat;
+  background-color: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .login-card {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  background: #fff;
-  padding: 170px 60px 180px;
-  width: 350px;
+  background: transparent;
+  backdrop-filter: none;
+  padding: 40px 60px;
+  width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .login-title {
   color: #303133;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 .login-form {
   margin-top: 1.2rem;
 }
 .login-card button {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   width: 100%;
+}
+
+/* 输入框透明样式 */
+.login-card ::v-deep .el-input__inner {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: #303133 !important;
+}
+
+.login-card ::v-deep .el-input__inner::placeholder {
+  color: rgba(48, 49, 51, 0.6) !important;
+}
+
+.login-card ::v-deep .el-input__inner:focus {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(64, 158, 255, 0.8) !important;
+}
+
+.login-card ::v-deep .el-input__prefix {
+  color: rgba(48, 49, 51, 0.8) !important;
 }
 </style>

@@ -278,6 +278,8 @@ export default {
             title: '成功',
             message: data.message
           })
+          // 重新获取最新的网站配置
+          this.getWebsiteConfig()
         } else {
           this.$notify.error({
             title: '失败',

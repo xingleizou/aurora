@@ -90,6 +90,14 @@ export default defineComponent({
           size: pagination.size
         })
         .then(({ data }) => {
+          // 添加空值检查，防止 data.data 或 data.data.records 为 null/undefined
+          if (!data.data || !data.data.records) {
+            console.warn('归档数据为空:', data)
+            articleStore.archives = []
+            pagination.total = 0
+            return
+          }
+          
           data.data.records.forEach((item: any) => {
             item.articles.forEach((article: any) => {
               article.articleContent = markdownToHtml(article.articleContent)

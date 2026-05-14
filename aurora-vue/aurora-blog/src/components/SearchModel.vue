@@ -161,7 +161,7 @@
               <span class="search-label">{{ t('settings.searched-by') }}</span>
               <img
                 class="mr-1.5"
-                src="https://static.linhaojun.top/aurora/config/cc36e9fa5aeb214e41495c1e2268f2db.png"
+                src="http://zxl-blog1.oss-cn-hangzhou.aliyuncs.com/aurora/config/3a6f222b90193086b171b6ba71f6156e423517587.png@478w_270h_1s.avif"
                 alt="ObsidianNext Logo"
                 height="20"
                 width="20" />
