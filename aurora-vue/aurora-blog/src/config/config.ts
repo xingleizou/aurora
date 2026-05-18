@@ -1,7 +1,7 @@
 export default {
   qqLogin: {
     QQ_APP_ID: '101999415',
-    QQ_REDIRECT_URI: 'http://localhost:8080/oauth/login/qq'
+    QQ_REDIRECT_URI: 'http://101.132.149.165/oauth/login/qq'
   },
   routes: [
     {
