@@ -1,24 +1,7 @@
 name: Deploy Aurora Blog
 
 on:
-  workflow_dispatch:  # 只保留手动触发
-    inputs:
-      deploy_backend:
-        description: '是否部署后端'
-        required: true
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-      deploy_frontend:
-        description: '是否部署前端'
-        required: true
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -27,83 +10,94 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 后端构建
       - name: Setup JDK 8
-        if: ${{ github.event.inputs.deploy_backend == 'true' }}
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
 
       - name: Build backend
-        if: ${{ github.event.inputs.deploy_backend == 'true' }}
         run: |
           cd aurora-springboot
           mvn clean package -DskipTests -q
 
-      # 前端构建
       - name: Setup Node.js
-        if: ${{ github.event.inputs.deploy_frontend == 'true' }}
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
       - name: Build blog frontend
-        if: ${{ github.event.inputs.deploy_frontend == 'true' }}
         run: |
           cd aurora-vue/aurora-blog
           npm install
           npm run build
 
       - name: Build admin frontend
-        if: ${{ github.event.inputs.deploy_frontend == 'true' }}
         run: |
           cd aurora-vue/aurora-admin
           npm install
           npm run build
 
-      # 上传文件
-      - name: Upload to server
-        uses: appleboy/scp-action@v0.1.4
+      - name: Upload backend JAR
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: aurora-springboot/target/aurora-springboot-0.0.1.jar,aurora-vue/aurora-blog/dist/*,aurora-vue/aurora-admin/dist/*
-          target: /tmp/aurora-deploy/
+          source: aurora-springboot/target/aurora-springboot-0.0.1.jar
+          target: /tmp/aurora-deploy
 
-      # 部署到服务器
+      - name: Upload blog dist
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: aurora-vue/aurora-blog/dist
+          target: /tmp/aurora-deploy/blog
+
+      - name: Upload admin dist
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: aurora-vue/aurora-admin/dist
+          target: /tmp/aurora-deploy/admin
+
       - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.5
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 部署后端
+            # 部署后端 JAR
             if [ -f /tmp/aurora-deploy/aurora-springboot/target/aurora-springboot-0.0.1.jar ]; then
               echo "部署后端..."
               cp /tmp/aurora-deploy/aurora-springboot/target/aurora-springboot-0.0.1.jar /usr/local/aurora-springboot/
               PID=$(ps -ef | grep aurora-springboot | grep -v grep | awk '{print $2}')
-              if [ ! -z "$PID" ]; then
-                kill -9 $PID
-              fi
+              if [ ! -z "$PID" ]; then kill -9 $PID; fi
               cd /usr/local/aurora-springboot && sh start.sh
+              echo "后端部署完成"
             fi
 
-            # 部署前端
-            if [ -d /tmp/aurora-deploy/aurora-vue/aurora-blog/dist ]; then
+            # 部署博客前端
+            if [ -d /tmp/aurora-deploy/blog/dist ]; then
               echo "部署博客前端..."
               rm -rf /data/aurora-vue/blog/*
-              cp -r /tmp/aurora-deploy/aurora-vue/aurora-blog/dist/* /data/aurora-vue/blog/
+              cp -r /tmp/aurora-deploy/blog/dist/* /data/aurora-vue/blog/
+              echo "博客前端部署完成"
             fi
 
-            if [ -d /tmp/aurora-deploy/aurora-vue/aurora-admin/dist ]; then
+            # 部署管理后台
+            if [ -d /tmp/aurora-deploy/admin/dist ]; then
               echo "部署管理后台..."
               rm -rf /data/aurora-vue/admin/*
-              cp -r /tmp/aurora-deploy/aurora-vue/aurora-admin/dist/* /data/aurora-vue/admin/
+              cp -r /tmp/aurora-deploy/admin/dist/* /data/aurora-vue/admin/
+              echo "管理后台部署完成"
             fi
 
             # 清理
             rm -rf /tmp/aurora-deploy
-            echo "部署完成！"
+            echo "全部部署完成！"
