@@ -83,18 +83,20 @@ jobs:
             fi
 
             # 部署博客前端
-            if [ -d /tmp/aurora-deploy/blog/dist ]; then
+            BLOG_DIST=/tmp/aurora-deploy/blog/aurora-vue/aurora-blog/dist
+            if [ -d "$BLOG_DIST" ]; then
               echo "部署博客前端..."
               rm -rf /data/aurora-vue/blog/*
-              cp -r /tmp/aurora-deploy/blog/dist/* /data/aurora-vue/blog/
+              cp -r $BLOG_DIST/* /data/aurora-vue/blog/
               echo "博客前端部署完成"
             fi
 
             # 部署管理后台
-            if [ -d /tmp/aurora-deploy/admin/dist ]; then
+            ADMIN_DIST=/tmp/aurora-deploy/admin/aurora-vue/aurora-admin/dist
+            if [ -d "$ADMIN_DIST" ]; then
               echo "部署管理后台..."
               rm -rf /data/aurora-vue/admin/*
-              cp -r /tmp/aurora-deploy/admin/dist/* /data/aurora-vue/admin/
+              cp -r $ADMIN_DIST/* /data/aurora-vue/admin/
               echo "管理后台部署完成"
             fi
 
