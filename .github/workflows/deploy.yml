@@ -103,3 +103,4 @@ jobs:
             # 清理
             rm -rf /tmp/aurora-deploy
             echo "全部部署完成！"
+#workflow疑似出问题，再跑一遍
