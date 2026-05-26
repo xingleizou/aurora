@@ -34,6 +34,7 @@ export function generaMenu() {
 }
 
 export const loadView = (view) => {
-  // 使用 ES6 动态 import，Webpack 5 会自动进行代码分割
-  return () => import(`@/views${view}.vue`)
+  // 移除可能已存在的 .vue 后缀，避免与拼接的后缀重复
+  const cleanView = view.replace(/\.vue$/, '')
+  return () => import(`@/views${cleanView}.vue`)
 }

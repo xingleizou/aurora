@@ -94,6 +94,18 @@
       <div>
         <template v-if="article.articleContent">
           <div class="post-html">
+            <div class="reprint-banner" v-if="article.originalUrl && article.type !== 1">
+              <span class="reprint-label">{{ t('settings.article-type-reprint') }}</span>
+              <span class="reprint-divider"></span>
+              <a
+                :href="article.originalUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="reprint-link">
+                Source: {{ article.originalUrl }}
+                <svg-icon icon-class="globe" class="reprint-icon" />
+              </a>
+            </div>
             <div class="markdown-body" ref="articleRef" v-html="article.articleContent" />
           </div>
         </template>
@@ -386,11 +398,27 @@ export default defineComponent({
         .replace(/[|]*\n/, '')
         .replace(/&npsp;/gi, '')
     }
+    const articleTypeLabel = computed(() => {
+      const type = reactiveData.article?.type
+      if (type === 1) return t('settings.article-type-original')
+      if (type === 2) return t('settings.article-type-reprint')
+      if (type === 3) return t('settings.article-type-translation')
+      return ''
+    })
+    const articleTypeClass = computed(() => {
+      const type = reactiveData.article?.type
+      if (type === 1) return 'type-original'
+      if (type === 2) return 'type-reprint'
+      if (type === 3) return 'type-translation'
+      return ''
+    })
     return {
       articleRef,
       ...toRefs(reactiveData),
       isMobile: computed(() => commonStore.isMobile),
       handleAuthorClick,
+      articleTypeLabel,
+      articleTypeClass,
       loading,
       t
     }
@@ -401,6 +429,71 @@ export default defineComponent({
 .post-html {
   word-wrap: break-word;
   word-break: break-all;
+  position: relative;
+}
+.reprint-banner {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #1a1a2e;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  // 使用伪元素实现渐变边框
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.5rem;
+    padding: 2px;
+    background: linear-gradient(90deg, #4299e1, #9f7aea);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+.reprint-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+.reprint-label {
+  color: #4299e1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.reprint-link {
+  color: var(--text-normal);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s;
+  opacity: 0.8;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reprint-link:hover {
+  opacity: 1;
+  color: #9f7aea;
+}
+.reprint-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 #toc1 {
   max-height: 470px;
@@ -458,7 +551,7 @@ export default defineComponent({
     width: 1em;
     margin-left: -1.15em;
     padding: 0;
-    font-weight: medium;
+    font-weight: 500;
     text-shadow: 0 0 0.5em var(--accent-2);
   }
 
@@ -506,5 +599,43 @@ export default defineComponent({
 <style lang="scss" scoped>
 .my-gap {
   gap: 1rem;
+}
+.article-type-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.article-type-tag {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.3rem;
+  color: #fff;
+}
+.type-original {
+  background: var(--accent-2, #f56565);
+}
+.type-reprint {
+  background: var(--accent-2, #48bb78);
+}
+.type-translation {
+  background: var(--accent-2, #4299e1);
+}
+.article-original-link {
+  color: var(--text-accent);
+  opacity: 0.75;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.article-original-link:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 </style>
