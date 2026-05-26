@@ -69,10 +69,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            aurora-springboot/target/aurora-springboot-0.0.1.jar
-            aurora-vue/aurora-blog/dist/
-            aurora-vue/aurora-admin/dist/
+          source: aurora-springboot/target/aurora-springboot-0.0.1.jar,aurora-vue/aurora-blog/dist/*,aurora-vue/aurora-admin/dist/*
           target: /tmp/aurora-deploy/
 
       # 部署到服务器
